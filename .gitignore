@@ -1,0 +1,32 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Data (raw datasets can be large / license-encumbered; keep out of git)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Models
+*.joblib
+*.pt
+*.bin
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Local SQLite database (Phase 5)
+*.db
+firewall.db

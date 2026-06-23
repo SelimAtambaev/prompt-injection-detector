@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prompt-injection-detector"
+version = "0.1.0"
+description = "A defensive inspection layer (AI firewall) that detects prompt-injection-class attacks before they reach an LLM."
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "httpx>=0.27",
+    "openai>=1.30",
+    "structlog>=24.1",
+]
+
+# Phase 0 only needs the dev tools below. ML / DB / dashboard dependencies are
+# added in their respective phases to keep the install surface small and the
+# dependency graph legible.
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff>=0.4",
+    "mypy>=1.9",
+    "pre-commit>=3.7",
+]
+# Phase 2: dataset collection/cleaning. Installed separately so the core
+# runtime install stays small.
+data = [
+    "datasets>=2.16",
+    "pandas>=2.0",
+]
+# Phase 3: ML detection layer. sentence-transformers pulls torch (large); the
+# hashing-embedder fallback needs only scikit-learn/numpy/joblib.
+ml = [
+    "scikit-learn>=1.3",
+    "numpy>=1.24",
+    "joblib>=1.3",
+    "sentence-transformers>=2.2",
+]
+# Phase 5: persistence. SQLite needs no driver; add psycopg for Postgres.
+storage = [
+    "sqlalchemy>=2.0",
+]
+# Phase 5b: monitoring dashboard.
+dashboard = [
+    "streamlit>=1.30",
+    "plotly>=5.18",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# pycodestyle, pyflakes, isort, pyupgrade, bugbear
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+# Only `app` (and its subpackages) is the importable package. data/, eval/,
+# dashboard/ are project folders, not packages -- this stops setuptools'
+# auto-discovery from erroring on "multiple top-level packages".
+[tool.setuptools.packages.find]
+include = ["app*"]
